@@ -2,6 +2,42 @@
 from typing import List, Tuple, Dict
 
 
+def generateLatexTableFromDataframeLike(
+    df_dict,
+    outputPath: str,
+    maxValueColumns: int = 25,
+    caption: str = "Sample Caption",
+    label: str = "sample_label",
+    precision: int = 4,
+    noScientificNotationInterval: Tuple[float, float] = (1e-4, 1e4),
+):
+    """
+    df_dict = df.to_dict(orient='list')
+    See generateLatexTable for the rest of the arguments.
+    """
+    header = list(df_dict.keys())
+    numRows = len(next(iter(df_dict.values())))
+    numericRowValuesList = [
+        [df_dict[col][i] for col in header if isinstance(df_dict[col][i], (int, float))]
+        for i in range(numRows)
+    ]
+    strRowValuesList = [
+        [df_dict[col][i] for col in header if isinstance(df_dict[col][i], str)]
+        for i in range(numRows)
+    ]
+    generateLatexTable(
+        numericRowValuesList=numericRowValuesList,
+        header=header,
+        outputPath=outputPath,
+        strRowValuesList=strRowValuesList if strRowValuesList[0] != [] else None,
+        maxValueColumns=maxValueColumns,
+        precision=precision,
+        caption=caption,
+        label=label,
+        noScientificNotationInterval=noScientificNotationInterval,
+    )
+
+
 def generateLatexTable(
     numericRowValuesList: List[List[float]],
     header: List[str],
@@ -33,9 +69,10 @@ def generateLatexTable(
         meanstdmode: see numericRowValuesList description.
         noScientificNotationInterval: If the absolute value is within this interval, scientific notation will not be used.
     """
-    formatNumber = (
-        lambda x: f"{x:.{precision}e}"
-        if abs(x) < noScientificNotationInterval[0] or abs(x) > noScientificNotationInterval[1]
+    formatNumber = lambda x: (
+        f"{x:.{precision}e}"
+        if abs(x) < noScientificNotationInterval[0]
+        or abs(x) > noScientificNotationInterval[1]
         else f"{x:.{precision}f}"
     )
 
