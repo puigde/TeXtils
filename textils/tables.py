@@ -1,6 +1,7 @@
 # stdlib dependencies
 from typing import List
 
+
 def generateLatexTable(
     numericRowValuesList: List[List[float]],
     header: List[str],
@@ -18,7 +19,7 @@ def generateLatexTable(
             if not meanstdmode (default): An element of this list is an array with values for columns.
             else: An element of this list is a list of tuples, each tuple contains the mean and std.
         strRowValuesList: List of lists containing the string values to be displayed in the left hand side columns of the table rows.
-        header: column names. 
+        header: column names.
         outputPath:
             Complete filepath for the .tex file.
             Example: ./tables/some_table.tex
