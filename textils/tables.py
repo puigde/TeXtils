@@ -1,5 +1,5 @@
 # stdlib dependencies
-from typing import List
+from typing import List, Tuple, Dict
 
 
 def generateLatexTable(
@@ -12,6 +12,7 @@ def generateLatexTable(
     caption: str = "Sample Caption",
     label: str = "sample_label",
     meanstdmode: bool = False,
+    noScientificNotationInterval: Tuple[float, float] = (1e-4, 1e4),
 ):
     """
     Args:
@@ -30,16 +31,22 @@ def generateLatexTable(
         caption: table caption.
         label: table label.
         meanstdmode: see numericRowValuesList description.
+        noScientificNotationInterval: If the absolute value is within this interval, scientific notation will not be used.
     """
+    formatNumber = (
+        lambda x: f"{x:.{precision}e}"
+        if abs(x) < noScientificNotationInterval[0] or abs(x) > noScientificNotationInterval[1]
+        else f"{x:.{precision}f}"
+    )
 
-    def array1dToLatexTableRow(array1d, precision=4, end: bool = True):
+    def array1dToLatexTableRow(array1d, end: bool = True):
         if meanstdmode:
             res = " & ".join(
-                [f"{val[0]:.{precision}f} pm {val[1]:.{precision}f}" for val in array1d]
+                [f"{formatNumber(val[0])} pm {formatNumber(val[1])}" for val in array1d]
             )
             res = res.replace("pm", "$\\pm$")
         else:
-            res = " & ".join([f"{val:.{precision}f}" for val in array1d])
+            res = " & ".join([formatNumber(val) for val in array1d])
         return res + " \\\\" if end else res
 
     def strListToLatexTableRow(strList, end: bool = True):
