@@ -94,7 +94,7 @@ def generateLatexTable(
         return " ".join(["|c"] * intRows) + "|"
 
     def generalstringformatter(strlatex: str) -> str:
-        return strlatex.replace("_", "\\_")
+        return strlatex.replace("_", "\\_").replace("%", "\\%")
 
     numFixedColumns = len(strRowValuesList[0]) if strRowValuesList is not None else 0
     effectiveMaxColumns = maxValueColumns - numFixedColumns
