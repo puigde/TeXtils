@@ -1,5 +1,6 @@
 # stdlib dependencies
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Callable
+import re
 
 
 def generateLatexTableFromDataframeLike(
@@ -96,6 +97,16 @@ def generateLatexTable(
     def generalstringformatter(strlatex: str) -> str:
         return strlatex.replace("_", "\\_").replace("%", "\\%")
 
+    def captionLabelStringFormatter(strlatex: str) -> str:
+        pattern = re.compile(r'\\(caption|label)\{.*?\}')
+        def replaceUnderscore(match):
+            content = match.group()
+            return re.sub(r'\\_', r'_', content)
+        return pattern.sub(replaceUnderscore, strlatex)
+
+    def pipelineStringFormatters(strlatex: str, formatters: List[Callable]) -> str:
+        return formatters[0](strlatex) if len(formatters) == 1 else formatters[-1](pipelineStringFormatters(strlatex, formatters[:-1]))
+
     numFixedColumns = len(strRowValuesList[0]) if strRowValuesList is not None else 0
     effectiveMaxColumns = maxValueColumns - numFixedColumns
     numFullColumns = len(header) - numFixedColumns
@@ -161,6 +172,6 @@ def generateLatexTable(
     \\label{{{label}}}
 \\end{{table}}
 """
-    formattedTable = generalstringformatter(fullTable)
+    formattedTable = pipelineStringFormatters(fullTable, [generalstringformatter, captionLabelStringFormatter])
     with open(outputPath, "w") as f:
         f.write(formattedTable)
